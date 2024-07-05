@@ -10,13 +10,20 @@ sys.path.append(rootPath)
 import time
 
 import wx
-import win32api
-import sys
 import wx.lib.agw.aui as aui
 import wx.lib.mixins.listctrl
+import csv
+from datetime import datetime
 
 APP_TITLE = "精策工厂打印"
 APP_ICON = "res/invest.ico"
+destFileFolder = '''c:\\temp'''
+btwFilepath = destFileFolder + "\\test.btw";
+paramFilePath = destFileFolder + "\\param.txt"
+
+logFilePath = destFileFolder + "\\print_log.csv"
+version = '1.0.20040705'
+
 
 class MainFrame(wx.Frame):
 
@@ -42,12 +49,7 @@ class MainFrame(wx.Frame):
         self.textBoxId = None
         self.textScanInfo = []
 
-        # set icon
-        if hasattr(sys, "frozen") and getattr(sys, "frozen") == "windows_exe":
-            exeName = win32api.GetModuleFileName(win32api.GetModuleHandle(None))
-            icon = wx.Icon(exeName, wx.BITMAP_TYPE_ICO)
-        else:
-            icon = wx.Icon(APP_ICON, wx.BITMAP_TYPE_ICO)
+        icon = wx.Icon(APP_ICON, wx.BITMAP_TYPE_ICO)
         self.SetIcon(icon)
 
         # add panes, clock
@@ -63,7 +65,7 @@ class MainFrame(wx.Frame):
         self.panelLeft = wx.Panel(self, -1)
         self.panelRight = wx.Panel(self, -1)
 
-        btnPrint= wx.Button(self.panelLeft, -1, u'打印标签', pos=(30, 150), size=(150, 50))
+        btnPrint= wx.Button(self.panelLeft, -1, u'打印标签', pos=(30, 150), size=(150, 60))
         btnPrint.Bind(wx.EVT_BUTTON, self.OnPrint)
 
         self._mgr = aui.AuiManager()
@@ -183,35 +185,39 @@ class MainFrame(wx.Frame):
             index += 1
 
     def OnPrint(self, evt):
-        # refresh the data
         print("main: OnPrint")
         self.printInfo()
 
-        destfilepath = '''c:\\temp'''
-        paramFilePath = destfilepath + "\\param.txt"
         printText = f"{self.textName.GetValue()}, {self.textType.GetValue()}, " +\
-                    f"{self.textPihao.GetValue()}, {self.textDate.GetValue()}, +" \
+                    f"{self.textPihao.GetValue()}, {self.textDate.GetValue()}, " +\
                     f"{self.textBoxCount.GetValue()}, {self.textBoxId.GetValue()}"
         index = 0
         for textScanInfo in self.textScanInfo:
-            printText = printText + f"scanInfo {index + 1}: {textScanInfo.GetValue()}"
+            printText = printText + f", {textScanInfo.GetValue()}"
             index += 1
 
         with open(paramFilePath, "w") as sr1:  # 使用with语句自动管理文件打开和关闭
             sr1.write(printText)
 
-        self.print_method(paramFilePath)
+        self.print_method(btwFilepath, printText)
 
 
 
-    def log_method(self):
+    def log_method(self, printText):
         # 这里假设我们只是打印一个日志消息，实际中可以根据需要修改
-        print("日志记录")
+        print("打印成功，写入日志记录")
+        current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        flag = '打印成功'
 
+        # 打开文件，追加模式
+        with open(logFilePath, 'a', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            # 写入一行
+            writer.writerow([current_date, version, flag, printText])
 
-    def print_method(self, paramFilePath, copyscount = 1):
+    def print_method(self, paramFilePath, printText, copyCount = 1):
         try:
-            for i in range(copyscount):
+            for i in range(copyCount):
                 # 使用subprocess运行bartend.exe，并传递参数
                 # 注意：Python中的字符串格式化与C#略有不同
                 cmd = [
@@ -221,7 +227,7 @@ class MainFrame(wx.Frame):
                     "/min=SystemTray"
                 ]
                 subprocess.Popen(cmd)  # 使用Popen来启动进程，不等待它完成
-                self.log_method()  # 调用日志方法
+                self.log_method(printText)  # 调用日志方法
         except Exception as ex:
             # 使用tkinter的messagebox显示错误信息
             print("Print Error")
