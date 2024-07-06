@@ -173,10 +173,7 @@ class MainFrame(wx.Frame):
     def GetSelectedDate(self):
         # 将wx.DateTime对象转换为datetime.date对象
         date = self.datePickerCtrl.GetValue()
-        print(f"date: {date.year} {date.month + 1}  {date.day}")
-        return ""
-        # 使用strftime方法格式化日期
-        formatted_date = datetime.date(date.year, date.month + 1, date.day).strftime('%Y年%m月%d日')
+        formatted_date = f"{date.year}年{date.month + 1:02d}月{date.day:02d}日"
         return formatted_date
 
     def AddGap(self, sizer, gapHeight):
