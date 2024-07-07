@@ -19,7 +19,7 @@ from datetime import datetime
 APP_TITLE = "精策工厂打印"
 APP_ICON = "res/invest.ico"
 destFileFolder = '''c:\\temp'''
-btwFilepath = destFileFolder + "\\test.btw";
+btwFilepath = destFileFolder + "\\print.btw";
 paramFilePath = destFileFolder + "\\param.txt"
 
 logFilePath = destFileFolder + "\\print_log.csv"
@@ -28,12 +28,12 @@ version = '1.0.20040705'
 
 class MainFrame(wx.Frame):
 
-    textName = None
-    textType = None
-    comboBoxPihao = None
-    datePickerCtrl = None
+    comboxName = None
+    comboBoxType = None
+    textPihao = None
+    datePickerProduction = None
     textBoxCount = None
-    textBoxId = None
+    datePickerValid = None
     textScanInfo = []
 
     def __init__(self, parent):
@@ -42,16 +42,16 @@ class MainFrame(wx.Frame):
         self.SetSizeHints((1200, 800))
         self.btnSaveCalcInvest : wx.Button = None
 
-        self.textName = None
-        self.textType = None
-        self.comboBoxPihao = None
-        self.datePickerCtrl = None
+        self.comboxName = None
+        self.comboBoxType = None
+        self.textPihao = None
+        self.datePickerProduction = None
         self.textBoxCount = None
-        self.textBoxId = None
+        self.datePickerValid = None
         self.textScanInfo = []
 
-        icon = wx.Icon(APP_ICON, wx.BITMAP_TYPE_ICO)
-        self.SetIcon(icon)
+        # icon = wx.Icon(APP_ICON, wx.BITMAP_TYPE_ICO)
+        # self.SetIcon(icon)
 
         # add panes, clock
         self.addPanes()
@@ -94,17 +94,20 @@ class MainFrame(wx.Frame):
 
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
         staticTextName  = wx.StaticText(self.panelRight, -1, label="产品名称：", size=STATIC_TEXT_SIZE)
-        self.textName        = wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE)
+        self.comboxName = wx.ComboBox(self.panelRight, value="组合血糖仪", choices=["组合血糖仪"],
+                                         style=wx.CB_READONLY, size=TEXT_SIZE)
+        # HAPPY-100/300/500型组合血糖仪
         staticTextType  = wx.StaticText(self.panelRight, -1, label="产品型号：", size=STATIC_TEXT_SIZE)
-        self.textType        = wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE)
+        self.comboBoxType = wx.ComboBox(self.panelRight, value="HAPPY-100型", choices=["HAPPY-100型", "HAPPY-300型", "HAPPY-500型"],
+                                         style=wx.CB_READONLY, size=TEXT_SIZE)
         staticTextName.SetFont(font)
-        self.textName.SetFont(font)
+        self.comboxName.SetFont(font)
         staticTextType.SetFont(font)
-        self.textType.SetFont(font)
+        self.comboBoxType.SetFont(font)
         row_sizer.Add(staticTextName,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
-        row_sizer.Add(self.textName,         1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
+        row_sizer.Add(self.comboxName, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
         row_sizer.Add(staticTextType,   2, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(self.textType,         3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        row_sizer.Add(self.comboBoxType, 3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         # 将行添加到垂直布局中
         sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
@@ -112,37 +115,37 @@ class MainFrame(wx.Frame):
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
 
         staticTextPihao  = wx.StaticText(self.panelRight, -1, label="产品批号：", size=STATIC_TEXT_SIZE)
-        # 创建下拉列表，列表项为['111', '222', '333']，默认选择第一个
-        self.comboBoxPihao = wx.ComboBox(self.panelRight, value="111", choices=["111", "222", "333"],
-                                         style=wx.CB_READONLY, size=TEXT_SIZE)
+        # 创建下拉列表，默认选择第一个
+        self.textPihao        = wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE)
+        self.textPihao.SetEditable(False)
         staticTextDate  = wx.StaticText(self.panelRight, -1, label="生产日期：", size=STATIC_TEXT_SIZE)
         # 创建日期选择控件，默认选择今天
-        self.datePickerCtrl = wx.adv.DatePickerCtrl(self.panelRight, dt=wx.DateTime.Now())
+        self.datePickerProduction = wx.adv.DatePickerCtrl(self.panelRight, dt=wx.DateTime.Now())
 
         staticTextPihao.SetFont(font)
-        self.comboBoxPihao.SetFont(font)
+        self.textPihao.SetFont(font)
         staticTextDate.SetFont(font)
-        self.datePickerCtrl.SetFont(font)
+        self.datePickerProduction.SetFont(font)
         row_sizer.Add(staticTextPihao,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
-        row_sizer.Add(self.comboBoxPihao,1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
+        row_sizer.Add(self.textPihao, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
         row_sizer.Add(staticTextDate,    2, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(self.datePickerCtrl,3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        row_sizer.Add(self.datePickerProduction, 3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         # 将行添加到垂直布局中
         sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
         staticTextBoxCount = wx.StaticText(self.panelRight, -1, label="本箱数量：", size=STATIC_TEXT_SIZE)
         self.textBoxCount = wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE)
-        staticTextBoxId = wx.StaticText(self.panelRight, -1, label="本箱箱号：", size=STATIC_TEXT_SIZE)
-        self.textBoxId = wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE)
+        staticTextDatePickerValid = wx.StaticText(self.panelRight, -1, label="有效日期：", size=STATIC_TEXT_SIZE)
+        self.datePickerValid = self.createDateValid()
         staticTextBoxCount.SetFont(font)
         self.textBoxCount.SetFont(font)
-        staticTextBoxId.SetFont(font)
-        self.textBoxId.SetFont(font)
+        staticTextDatePickerValid.SetFont(font)
+        self.datePickerValid.SetFont(font)
         row_sizer.Add(staticTextBoxCount,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         row_sizer.Add(self.textBoxCount,         1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(staticTextBoxId,   2, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(self.textBoxId,         3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        row_sizer.Add(staticTextDatePickerValid,   2, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
+        row_sizer.Add(self.datePickerValid, 3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         # 将行添加到垂直布局中
         sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
@@ -166,13 +169,44 @@ class MainFrame(wx.Frame):
             # 将行添加到垂直布局中
             sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
+        self.textScanInfo[0].Bind(wx.EVT_TEXT, self.onScanInfoChanged)
+
         self.panelRight.SetSizer(sizer)
 
         self._mgr.Update()
 
-    def GetSelectedDate(self):
+    def onScanInfoChanged(self, event):
+        text = event.GetString()
+        pihao = text[26:34]
+        print("Text changed:", text)
+        print("pihao:", pihao)
+        self.textPihao.SetValue(pihao)
+
+    def createDateValid(self):
+
+        # 获取今天的日期
+        today = wx.DateTime.Now()
+
+        # 计算5年后的日期（仅改变年份）
+        # 注意：这里假设月份和日期在当前年份的5年后仍然有效
+        # 如果不是，你可能需要添加额外的逻辑来调整月份和日期
+        future_year = today.GetYear() + 5
+        # print(f"{future_year}, {today.GetMonth() + 1}, {today.GetDay()}")
+        try:
+            future_date = wx.DateTime.FromDMY(today.GetDay(), today.GetMonth(), future_year)
+
+        except wx._core.wxAssertionError as e:
+            # 捕获 wxAssertionError 并处理它
+            # 例如，你可以打印一条错误消息或执行一些恢复操作
+            print(f"Caught wxAssertionError: {e}")
+            # 检查日期是否有效（例如，2月29日在非闰年无效）
+            future_date = wx.DateTime.FromDMY(1, today.GetMonth(), future_year)
+            future_date.SetToLastMonthDay()  # 调整为该月的最后一天
+        return wx.adv.DatePickerCtrl(self.panelRight, dt=future_date)
+
+    def GetSelectedDate(self, datePicker):
         # 将wx.DateTime对象转换为datetime.date对象
-        date = self.datePickerCtrl.GetValue()
+        date = datePicker.GetValue()
         formatted_date = f"{date.year}年{date.month + 1:02d}月{date.day:02d}日"
         return formatted_date
 
@@ -201,14 +235,18 @@ class MainFrame(wx.Frame):
         print("main: OnPrint")
         self.printInfo()
 
-        printText = f"{self.textName.GetValue()}, {self.textType.GetValue()}, " +\
-                    f"{self.comboBoxPihao.GetValue()}, {self.GetSelectedDate()}, " +\
-                    f"{self.textBoxCount.GetValue()}, {self.textBoxId.GetValue()}"
+        printText = f"{self.comboxName.GetValue()}, {self.comboBoxType.GetValue()}, " +\
+                    f"{self.textPihao.GetValue()}, {self.GetSelectedDate(self.datePickerProduction)}, " +\
+                    f"{self.textBoxCount.GetValue()}, {self.GetSelectedDate(self.datePickerValid)}"
+        # 10个扫描信息。如果是空，保留逗号
+        barCodeText= ""
         index = 0
         for textScanInfo in self.textScanInfo:
             printText = printText + f", {textScanInfo.GetValue()}"
+            barCodeText = barCodeText + f"{textScanInfo.GetValue()} "
             index += 1
 
+        printText = printText + "," + barCodeText
         with open(paramFilePath, "w") as sr1:  # 使用with语句自动管理文件打开和关闭
             sr1.write(printText)
 
