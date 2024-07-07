@@ -23,7 +23,7 @@ btwFilepath = destFileFolder + "\\print.btw";
 paramFilePath = destFileFolder + "\\print.txt"
 
 logFilePath = destFileFolder + "\\print_log.csv"
-version = '1.0.20040705'
+version = '1.0.20040707'
 
 
 class MainFrame(wx.Frame):
@@ -106,8 +106,8 @@ class MainFrame(wx.Frame):
         self.comboBoxType.SetFont(font)
         row_sizer.Add(staticTextName,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         row_sizer.Add(self.comboxName, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(staticTextType,   2, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(self.comboBoxType, 3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        row_sizer.Add(staticTextType,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        row_sizer.Add(self.comboBoxType, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         # 将行添加到垂直布局中
         sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
@@ -128,8 +128,8 @@ class MainFrame(wx.Frame):
         self.datePickerProduction.SetFont(font)
         row_sizer.Add(staticTextPihao,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         row_sizer.Add(self.textPihao, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(staticTextDate,    2, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(self.datePickerProduction, 3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        row_sizer.Add(staticTextDate,    0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        row_sizer.Add(self.datePickerProduction, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         # 将行添加到垂直布局中
         sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
@@ -144,15 +144,18 @@ class MainFrame(wx.Frame):
         self.datePickerValid.SetFont(font)
         row_sizer.Add(staticTextBoxCount,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         row_sizer.Add(self.textBoxCount,         1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(staticTextDatePickerValid,   2, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(self.datePickerValid, 3, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        row_sizer.Add(staticTextDatePickerValid,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        row_sizer.Add(self.datePickerValid, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         # 将行添加到垂直布局中
         sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
         self.AddGap(sizer, 50)
 
+        for i in range(10):
+            self.textScanInfo.append(wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE))
+
         # 每个设备的扫码信息
-        for i in range(10):  # 遍历两次以创建两行
+        for i in range(5):  # 遍历两次以创建两行
             row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
 
             # 静态文本
@@ -161,11 +164,19 @@ class MainFrame(wx.Frame):
             static_text.SetFont(font)
 
             # 输入框
-            text_ctrl = wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE)
-            text_ctrl.SetFont(font)
-            self.textScanInfo.append(text_ctrl)
-            text_ctrl.Bind(wx.EVT_TEXT, self.onScanInfoChanged)
-            row_sizer.Add(text_ctrl, 1, wx.FIXED_MINSIZE | wx.RIGHT, 5)  # 拉伸输入框并留出间隔
+            self.textScanInfo[i].SetFont(font)
+            self.textScanInfo[i].Bind(wx.EVT_TEXT, self.onScanInfoChanged)
+            row_sizer.Add(self.textScanInfo[i], 1, wx.FIXED_MINSIZE | wx.RIGHT, TEXT_GAP)  # 拉伸输入框并留出间隔
+
+            # 静态文本
+            static_text = wx.StaticText(self.panelRight, -1, label=f"扫码信息 {i+1 + 5}：", size=STATIC_TEXT_SIZE)
+            row_sizer.Add(static_text, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+            static_text.SetFont(font)
+
+            # 输入框
+            self.textScanInfo[i + 5].SetFont(font)
+            self.textScanInfo[i + 5].Bind(wx.EVT_TEXT, self.onScanInfoChanged)
+            row_sizer.Add(self.textScanInfo[i + 5], 1, wx.FIXED_MINSIZE | wx.RIGHT, 5)  # 拉伸输入框并留出间隔
 
             # 将行添加到垂直布局中
             sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
