@@ -34,6 +34,7 @@ class MainFrame(wx.Frame):
     datePickerProduction = None
     textBoxCount = None
     datePickerValid = None
+    staticTextStatus = None
     textScanInfo = []
 
     def __init__(self, parent):
@@ -48,6 +49,7 @@ class MainFrame(wx.Frame):
         self.datePickerProduction = None
         self.textBoxCount = None
         self.datePickerValid = None
+        self.staticTextStatus = None
         self.textScanInfo = []
 
         # icon = wx.Icon(APP_ICON, wx.BITMAP_TYPE_ICO)
@@ -181,19 +183,30 @@ class MainFrame(wx.Frame):
             # 将行添加到垂直布局中
             sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
+        # 状态文字
+        self.AddGap(sizer, 50)
+        row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
+        # 静态文本
+        self.staticTextStatus = wx.StaticText(self.panelRight, -1, label=f"请进行扫码", size=STATIC_TEXT_SIZE)
+        row_sizer.Add(self.staticTextStatus, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        self.staticTextStatus.SetFont(font)
+        sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
+        # UI布局完成
         self.panelRight.SetSizer(sizer)
 
         self._mgr.Update()
 
     def onScanInfoChanged(self, event):
-        text = event.GetString()
-        pihao = text[26:34]
-        lastThree = text[-3:]
+        textScanInfo = event.GetString()
+        pihao = textScanInfo[26:34]
+        lastThree = textScanInfo[-3:]
+
+        self.staticTextStatus.SetLabel("扫码信息：" + textScanInfo)
 
         triggered_control = event.GetEventObject()
         if (triggered_control == self.textScanInfo[0]):
-            print("Text changed:", text)
+            print("Text changed:", textScanInfo)
             print("pihao:", pihao)
             self.textPihao.SetValue(pihao)
 
