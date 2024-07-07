@@ -279,7 +279,7 @@ class MainFrame(wx.Frame):
         flag = '打印成功'
 
         # 打开文件，追加模式
-        with open(logFilePath, 'a', newline='', encoding='unicode') as file:
+        with open(logFilePath, 'a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             # 写入一行
             writer.writerow([current_date, version, flag, printText])
@@ -298,11 +298,8 @@ class MainFrame(wx.Frame):
                 subprocess.Popen(cmd)  # 使用Popen来启动进程，不等待它完成
                 self.log_method(printText)  # 调用日志方法
         except Exception as ex:
-            # 使用tkinter的messagebox显示错误信息
+            print(f"Caught Exception: {ex}")
             print("Print Error")
-            # root = tk.Tk()
-            # root.withdraw()  # 隐藏主窗口
-            # messagebox.showerror("Error", "打印异常，请检查打印机连接及打印模板文件", icon="warning")
 
 class mainApp(wx.App):
     def OnInit(self):
