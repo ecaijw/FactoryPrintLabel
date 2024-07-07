@@ -20,7 +20,7 @@ APP_TITLE = "精策工厂打印"
 APP_ICON = "res/invest.ico"
 destFileFolder = '''c:\\temp'''
 btwFilepath = destFileFolder + "\\print.btw";
-paramFilePath = destFileFolder + "\\param.txt"
+paramFilePath = destFileFolder + "\\print.txt"
 
 logFilePath = destFileFolder + "\\print_log.csv"
 version = '1.0.20040705'
@@ -164,12 +164,12 @@ class MainFrame(wx.Frame):
             text_ctrl = wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE)
             text_ctrl.SetFont(font)
             self.textScanInfo.append(text_ctrl)
+            text_ctrl.Bind(wx.EVT_TEXT, self.onScanInfoChanged)
             row_sizer.Add(text_ctrl, 1, wx.FIXED_MINSIZE | wx.RIGHT, 5)  # 拉伸输入框并留出间隔
 
             # 将行添加到垂直布局中
             sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
-        self.textScanInfo[0].Bind(wx.EVT_TEXT, self.onScanInfoChanged)
 
         self.panelRight.SetSizer(sizer)
 
@@ -178,9 +178,16 @@ class MainFrame(wx.Frame):
     def onScanInfoChanged(self, event):
         text = event.GetString()
         pihao = text[26:34]
-        print("Text changed:", text)
-        print("pihao:", pihao)
-        self.textPihao.SetValue(pihao)
+        lastThree = text[-3:]
+
+        triggered_control = event.GetEventObject()
+        if (triggered_control == self.textScanInfo[0]):
+            print("Text changed:", text)
+            print("pihao:", pihao)
+            self.textPihao.SetValue(pihao)
+
+        # use changeValue() to set the text, which does not trigger EVT_TEXT event
+        triggered_control.ChangeValue(pihao + lastThree)
 
     def createDateValid(self):
 
@@ -247,7 +254,7 @@ class MainFrame(wx.Frame):
             index += 1
 
         printText = printText + "," + barCodeText
-        with open(paramFilePath, "w") as sr1:  # 使用with语句自动管理文件打开和关闭
+        with open(paramFilePath, "w", encoding="utf-8") as sr1:  # 使用with语句自动管理文件打开和关闭
             sr1.write(printText)
 
         self.print_method(btwFilepath, printText)
@@ -261,19 +268,19 @@ class MainFrame(wx.Frame):
         flag = '打印成功'
 
         # 打开文件，追加模式
-        with open(logFilePath, 'a', newline='', encoding='utf-8') as file:
+        with open(logFilePath, 'a', newline='', encoding='unicode') as file:
             writer = csv.writer(file)
             # 写入一行
             writer.writerow([current_date, version, flag, printText])
 
-    def print_method(self, paramFilePath, printText, copyCount = 1):
+    def print_method(self, btwFilePath, printText, copyCount = 1):
         try:
             for i in range(copyCount):
                 # 使用subprocess运行bartend.exe，并传递参数
                 # 注意：Python中的字符串格式化与C#略有不同
                 cmd = [
-                    "bartend.exe",
-                    f"/AF={paramFilePath}",
+                    f"C:\\Program Files (x86)\\Seagull\\BarTender Suite\\bartend.exe",
+                    f"/AF={btwFilePath}",
                     "/P",
                     "/min=SystemTray"
                 ]
