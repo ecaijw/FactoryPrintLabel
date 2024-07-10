@@ -290,12 +290,28 @@ class MainFrame(wx.Frame):
     def printInfo(self):
         index = 0
         for textScanInfo in self.textProductNumber:
-            print(f"scanInfo {index + 1}: {textScanInfo.GetValue()}")
+            print(f"产品编号 {index + 1}: {textScanInfo.GetValue()}")
             index += 1
+
+    def checkBeforePrint(self):
+        productNumberSet = set()
+
+        for i in range(PRODUCT_NUMBER_COUNT):
+            productNumber = self.textProductNumber[i].GetValue()
+            if productNumber == "": # 产品编号空：没有进行扫描，不用进行检查
+                continue
+            if productNumber in productNumberSet:
+                self.staticTextStatus.SetLabel(f"无法进行打印：产品编号不能相同。")
+                return False
+            productNumberSet.add(productNumber)
+        return True
 
     def OnPrint(self, evt):
         print("main: OnPrint")
         self.printInfo()
+
+        if not self.checkBeforePrint():
+            return
 
         printText = f"{self.comboxName.GetValue()}, {self.comboBoxType.GetValue()}, " +\
                     f"{self.textPihao.GetValue()}, {self.GetSelectedDate(self.datePickerProduction)}, " +\
