@@ -308,6 +308,17 @@ class MainFrame(wx.Frame):
             print(f"产品编号 {index + 1}: {textScanInfo.GetValue()}")
             index += 1
 
+    def showDialog(self, message):
+        # 显示一个包含“hello”的弹窗
+        # wx.OK | wx.ICON_INFORMATION 指定了弹窗的按钮和图标
+        dlg = wx.MessageDialog(self, message, "注意", wx.OK | wx.ICON_INFORMATION)
+
+        # 显示弹窗并等待用户响应
+        result = dlg.ShowModal()
+
+        # 销毁弹窗对象
+        dlg.Destroy()
+
     def checkBeforePrint(self):
         productNumberSet = set()
 
@@ -317,6 +328,7 @@ class MainFrame(wx.Frame):
                 continue
             if productNumber in productNumberSet:
                 self.staticTextStatus.SetLabel(f"无法进行打印：产品编号不能相同。")
+                self.showDialog(f"无法进行打印：产品编号不能相同。")
                 return False
             productNumberSet.add(productNumber)
         return True
