@@ -25,6 +25,8 @@ paramFilePath = destFileFolder + "\\print.txt"
 logFilePath = destFileFolder + "\\print_log.csv"
 version = '1.0.20040707'
 
+PRODUCT_NUMBER_COUNT = 10
+
 
 class MainFrame(wx.Frame):
 
@@ -35,7 +37,7 @@ class MainFrame(wx.Frame):
     textBoxCount = None
     datePickerValid = None
     staticTextStatus = None
-    textScanInfo = []
+    textProductNumber = []
 
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, APP_TITLE)
@@ -50,7 +52,8 @@ class MainFrame(wx.Frame):
         self.textBoxCount = None
         self.datePickerValid = None
         self.staticTextStatus = None
-        self.textScanInfo = []
+        self.textTest = None
+        self.textProductNumber = []
 
         # icon = wx.Icon(APP_ICON, wx.BITMAP_TYPE_ICO)
         # self.SetIcon(icon)
@@ -153,32 +156,33 @@ class MainFrame(wx.Frame):
 
         self.AddGap(sizer, 50)
 
-        for i in range(10):
-            self.textScanInfo.append(wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE))
+        for i in range(PRODUCT_NUMBER_COUNT):
+            self.textProductNumber.append(wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE))
 
+        halfProductNumberCount = int(PRODUCT_NUMBER_COUNT / 2)
         # 每个设备的扫码信息
-        for i in range(5):  # 遍历两次以创建两行
+        for i in range(halfProductNumberCount):  # 遍历两次以创建两行
             row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
 
             # 静态文本
-            static_text = wx.StaticText(self.panelRight, -1, label=f"扫码信息 {i+1}：", size=STATIC_TEXT_SIZE)
+            static_text = wx.StaticText(self.panelRight, -1, label=f"产品编号 {i+1}：", size=STATIC_TEXT_SIZE)
             row_sizer.Add(static_text, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
             static_text.SetFont(font)
 
             # 输入框
-            self.textScanInfo[i].SetFont(font)
-            self.textScanInfo[i].Bind(wx.EVT_TEXT, self.onScanInfoChanged)
-            row_sizer.Add(self.textScanInfo[i], 1, wx.FIXED_MINSIZE | wx.RIGHT, TEXT_GAP)  # 拉伸输入框并留出间隔
+            self.textProductNumber[i].SetFont(font)
+            self.textProductNumber[i].Bind(wx.EVT_TEXT, self.onScanInfoChanged)
+            row_sizer.Add(self.textProductNumber[i], 1, wx.FIXED_MINSIZE | wx.RIGHT, TEXT_GAP)  # 拉伸输入框并留出间隔
 
             # 静态文本
-            static_text = wx.StaticText(self.panelRight, -1, label=f"扫码信息 {i+1 + 5}：", size=STATIC_TEXT_SIZE)
+            static_text = wx.StaticText(self.panelRight, -1, label=f"产品编号 {i+1 + halfProductNumberCount}：", size=STATIC_TEXT_SIZE)
             row_sizer.Add(static_text, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
             static_text.SetFont(font)
 
             # 输入框
-            self.textScanInfo[i + 5].SetFont(font)
-            self.textScanInfo[i + 5].Bind(wx.EVT_TEXT, self.onScanInfoChanged)
-            row_sizer.Add(self.textScanInfo[i + 5], 1, wx.FIXED_MINSIZE | wx.RIGHT, 5)  # 拉伸输入框并留出间隔
+            self.textProductNumber[i + halfProductNumberCount].SetFont(font)
+            self.textProductNumber[i + halfProductNumberCount].Bind(wx.EVT_TEXT, self.onScanInfoChanged)
+            row_sizer.Add(self.textProductNumber[i + halfProductNumberCount], 1, wx.FIXED_MINSIZE | wx.RIGHT, 5)  # 拉伸输入框并留出间隔
 
             # 将行添加到垂直布局中
             sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
@@ -192,26 +196,53 @@ class MainFrame(wx.Frame):
         self.staticTextStatus.SetFont(font)
         sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
 
+        # 状态文字
+        self.AddGap(sizer, 50)
+        row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
+        # 静态文本
+        self.textTest = wx.TextCtrl(self.panelRight, -1, value=f"测试信息", size=(800, 500), style=wx.TE_MULTILINE | wx.TE_READONLY)
+        row_sizer.Add(self.textTest, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        self.textTest.SetFont(font)
+        sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
+
         # UI布局完成
         self.panelRight.SetSizer(sizer)
 
         self._mgr.Update()
 
     def onScanInfoChanged(self, event):
-        textScanInfo = event.GetString()
-        pihao = textScanInfo[26:34]
-        lastThree = textScanInfo[-3:]
-
-        self.staticTextStatus.SetLabel("扫码信息：" + textScanInfo)
-
         triggered_control = event.GetEventObject()
-        if (triggered_control == self.textScanInfo[0]):
-            print("Text changed:", textScanInfo)
-            print("pihao:", pihao)
-            self.textPihao.SetValue(pihao)
+        textScanInfo = event.GetString()
 
-        # use changeValue() to set the text, which does not trigger EVT_TEXT event
-        triggered_control.ChangeValue(pihao + lastThree)
+        if (triggered_control == self.textProductNumber[0]):
+            t = datetime.now()
+
+            print(f"onScanInfoChanged {t.microsecond}: ", textScanInfo)
+            labelTest = f"({t.microsecond}): {event.GetString()}\n{self.textTest.GetValue()}"
+            self.textTest.SetValue(labelTest)
+
+        # 扫描枪的信息，可能分多次进入输入框
+        if (len(textScanInfo) == 39):
+            pihao = textScanInfo[26:34]
+            lastThree = textScanInfo[-3:]
+            self.staticTextStatus.SetLabel("扫码信息：" + textScanInfo)
+
+            if (triggered_control == self.textProductNumber[0]):
+                print("Text changed:", textScanInfo)
+                print("pihao:", pihao)
+                self.textPihao.SetValue(pihao)
+
+            # use changeValue() to set the text, which does not trigger EVT_TEXT event
+            triggered_control.ChangeValue(pihao + lastThree)
+
+            print(f"onScanInfoChanged: SetFocus()")
+            # 设置下一个产品编号接收输入
+            textCtrlIndex = 0
+            for textCtrlIndex in range(PRODUCT_NUMBER_COUNT - 1):
+                if (triggered_control == self.textProductNumber[textCtrlIndex]):
+                    self.textProductNumber[textCtrlIndex + 1].SetFocus()
+            if (triggered_control == self.textProductNumber[PRODUCT_NUMBER_COUNT - 1]):
+                self.textBoxCount.SetFocus()
 
     def createDateValid(self):
 
@@ -258,7 +289,7 @@ class MainFrame(wx.Frame):
 
     def printInfo(self):
         index = 0
-        for textScanInfo in self.textScanInfo:
+        for textScanInfo in self.textProductNumber:
             print(f"scanInfo {index + 1}: {textScanInfo.GetValue()}")
             index += 1
 
@@ -272,7 +303,7 @@ class MainFrame(wx.Frame):
         # 10个扫描信息。如果是空，保留逗号
         barCodeText= ""
         index = 0
-        for textScanInfo in self.textScanInfo:
+        for textScanInfo in self.textProductNumber:
             printText = printText + f", {textScanInfo.GetValue()}"
             barCodeText = barCodeText + f"{textScanInfo.GetValue()} "
             index += 1
