@@ -16,14 +16,14 @@ import wx.lib.mixins.listctrl
 import csv
 from datetime import datetime
 
-APP_TITLE = "精策工厂打印"
+APP_TITLE = "精策医疗——工厂标签打印软件"
 APP_ICON = "res/invest.ico"
 destFileFolder = '''c:\\temp'''
 btwFilepath = destFileFolder + "\\print.btw";
 paramFilePath = destFileFolder + "\\print.txt"
 
 logFilePath = destFileFolder + "\\print_log.csv"
-version = '1.0.20040707'
+version = '1.0.20240710'
 
 PRODUCT_NUMBER_COUNT = 10
 
@@ -68,24 +68,31 @@ class MainFrame(wx.Frame):
 
 
     def addPanes(self):
+        STATIC_TEXT_SIZE = (200, 35)
+        TEXT_SIZE = (250, 35)
+        TEXT_GAP = 100
+        font = wx.Font(18, wx.DECORATIVE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, underline = False, faceName = "Monaco")
+
         self.panelLeft = wx.Panel(self, -1)
         self.panelRight = wx.Panel(self, -1)
 
+        #################################################
+        # 左边的panel
         btnPrint= wx.Button(self.panelLeft, -1, u'打印标签', pos=(30, 150), size=(150, 60))
         btnPrint.Bind(wx.EVT_BUTTON, self.OnPrint)
+
+        btnResetData = wx.Button(self.panelLeft, -1, u'清除数据', pos=(30, 400), size=(150, 60))
+        btnResetData.Bind(wx.EVT_BUTTON, self.OnResetData)
 
         self._mgr = aui.AuiManager()
         self._mgr.SetManagedWindow(self)
         self._mgr.AddPane(self.panelLeft, aui.AuiPaneInfo().Name("LeftPanel").
                           Left().Layer(1).MinSize((200, -1)).Caption(u"操作区").MinimizeButton(True).MaximizeButton(True).CloseButton(True))
 
-        self._mgr.AddPane(self.panelRight, aui.AuiPaneInfo().Name("CenterPanelInvest").
+        #################################################
+        # 右边的panel
+        self._mgr.AddPane(self.panelRight, aui.AuiPaneInfo().Name("RightPanel").
                           CenterPane().Show())
-
-        STATIC_TEXT_SIZE = (150, 35)
-        TEXT_SIZE = (250, 35)
-        TEXT_GAP = 100
-        font = wx.Font(18, wx.DECORATIVE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, underline = False, faceName = "Monaco")
 
         '''
         产品名称     产品型号
@@ -96,6 +103,13 @@ class MainFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)  # 创建垂直布局管理器
 
         self.AddGap(sizer, 50)
+
+        row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
+        staticTextVersion  = wx.StaticText(self.panelRight, -1, label=f"版本号：{version}",  size=(200, 35))
+        fontVersion = wx.Font(24, wx.DECORATIVE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, underline=False, faceName="Monaco")
+        staticTextVersion.SetFont(fontVersion)
+        staticTextVersion.SetForegroundColour('blue')
+        row_sizer.Add(staticTextVersion,         0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
 
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
         staticTextName  = wx.StaticText(self.panelRight, -1, label="产品名称：", size=STATIC_TEXT_SIZE)
@@ -141,15 +155,15 @@ class MainFrame(wx.Frame):
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
         staticTextBoxCount = wx.StaticText(self.panelRight, -1, label="本箱数量：", size=STATIC_TEXT_SIZE)
         self.textBoxCount = wx.TextCtrl(self.panelRight, -1, size=TEXT_SIZE)
-        staticTextDatePickerValid = wx.StaticText(self.panelRight, -1, label="有效日期：", size=STATIC_TEXT_SIZE)
+        staticTextDatePickerInvalid = wx.StaticText(self.panelRight, -1, label="失效日期：", size=STATIC_TEXT_SIZE)
         self.datePickerValid = self.createDateValid()
         staticTextBoxCount.SetFont(font)
         self.textBoxCount.SetFont(font)
-        staticTextDatePickerValid.SetFont(font)
+        staticTextDatePickerInvalid.SetFont(font)
         self.datePickerValid.SetFont(font)
         row_sizer.Add(staticTextBoxCount,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         row_sizer.Add(self.textBoxCount,         1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, TEXT_GAP)  # 右对齐并留出间隔
-        row_sizer.Add(staticTextDatePickerValid,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
+        row_sizer.Add(staticTextDatePickerInvalid,   0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         row_sizer.Add(self.datePickerValid, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         # 将行添加到垂直布局中
         sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
@@ -191,7 +205,7 @@ class MainFrame(wx.Frame):
         self.AddGap(sizer, 50)
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)  # 水平布局，用于每行
         # 静态文本
-        self.staticTextStatus = wx.StaticText(self.panelRight, -1, label=f"请进行扫码", size=STATIC_TEXT_SIZE)
+        self.staticTextStatus = wx.StaticText(self.panelRight, -1, label=f"请扫描产品编号", size=STATIC_TEXT_SIZE)
         row_sizer.Add(self.staticTextStatus, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         self.staticTextStatus.SetFont(font)
         sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
@@ -204,6 +218,7 @@ class MainFrame(wx.Frame):
         row_sizer.Add(self.textTest, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)  # 右对齐并留出间隔
         self.textTest.SetFont(font)
         sizer.Add(row_sizer, 0, wx.ALL | wx.EXPAND, 5)  # 留出间隔并允许拉伸
+        self.textTest.Hide()
 
         # UI布局完成
         self.panelRight.SetSizer(sizer)
@@ -305,6 +320,11 @@ class MainFrame(wx.Frame):
                 return False
             productNumberSet.add(productNumber)
         return True
+
+    def OnResetData(self, evt):
+        print("main: OnResetData")
+        for textCtrlIndex in range(PRODUCT_NUMBER_COUNT - 1):
+            self.textProductNumber[textCtrlIndex].SetValue("")
 
     def OnPrint(self, evt):
         print("main: OnPrint")
