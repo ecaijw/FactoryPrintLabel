@@ -23,7 +23,7 @@ btwFilepath = destFileFolder + "\\print.btw";
 paramFilePath = destFileFolder + "\\print.txt"
 
 logFilePath = destFileFolder + "\\print_log.csv"
-version = '1.0.20240710'
+version = '1.0.20241102'
 
 PRODUCT_NUMBER_COUNT = 10
 
@@ -225,6 +225,7 @@ class MainFrame(wx.Frame):
 
         self._mgr.Update()
 
+    # test: 010697539465000817290912101024090121041
     def onScanInfoChanged(self, event):
         triggered_control = event.GetEventObject()
         textScanInfo = event.GetString()
@@ -337,6 +338,7 @@ class MainFrame(wx.Frame):
         print("main: OnResetData")
         for textCtrlIndex in range(PRODUCT_NUMBER_COUNT - 1):
             self.textProductNumber[textCtrlIndex].SetValue("")
+        self.textProductNumber[0].SetFocus()
 
     def OnPrint(self, evt):
         print("main: OnPrint")
