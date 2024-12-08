@@ -23,7 +23,7 @@ btwFilepath = destFileFolder + "\\print.btw";
 paramFilePath = destFileFolder + "\\print.txt"
 
 logFilePath = destFileFolder + "\\print_log.csv"
-version = '1.0.20241102'
+version = '1.0.20241208'
 
 PRODUCT_NUMBER_COUNT = 10
 
