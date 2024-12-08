@@ -336,7 +336,7 @@ class MainFrame(wx.Frame):
 
     def OnResetData(self, evt):
         print("main: OnResetData")
-        for textCtrlIndex in range(PRODUCT_NUMBER_COUNT - 1):
+        for textCtrlIndex in range(PRODUCT_NUMBER_COUNT):
             self.textProductNumber[textCtrlIndex].SetValue("")
         self.textProductNumber[0].SetFocus()
 
